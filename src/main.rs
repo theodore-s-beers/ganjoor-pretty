@@ -73,9 +73,9 @@ async fn index(path: web::Path<String>) -> impl Responder {
             "-M",
             "dir=rtl",
             "-H",
-            "/head.html",
+            "head.html",
             "-A",
-            "/script.html",
+            "script.html",
         ])
         .output()
     {
