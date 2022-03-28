@@ -40,6 +40,10 @@ async fn index(path: web::Path<String>) -> impl Responder {
 
     let lines: Vec<ElementRef> = parsed.select(&line_selector).collect();
 
+    if lines.is_empty() {
+        return HttpResponse::Ok().body("Something went wrong!");
+    }
+
     let mut collected = String::new();
 
     for element in lines {
