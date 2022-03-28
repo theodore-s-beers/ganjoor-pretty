@@ -7,18 +7,15 @@
     // Select all first hemistichs
     const firstHems = document.querySelectorAll("div.m1");
 
-    for (let i = 0; i < firstHems.length; i++) {
+    for (const element of firstHems) {
       // Add a div for line number before each first hemistich
-      firstHems[i].insertAdjacentHTML(
+      element.insertAdjacentHTML(
         "beforebegin",
         '<div class="line-number"></div>'
       );
 
       // Add a div for separator after each first hemistich
-      firstHems[i].insertAdjacentHTML(
-        "afterend",
-        '<div class="separator"></div>'
-      );
+      element.insertAdjacentHTML("afterend", '<div class="separator"></div>');
     }
 
     //
@@ -43,7 +40,7 @@
     const lineNumbers = document.querySelectorAll("div.line-number");
 
     // Final line should never be numbered, so we stop iteration early
-    for (let i = 0; i < lineNumbers.length - 1; i++) {
+    for (let i = 0, n = lineNumbers.length; i < n - 1; i++) {
       // The actual line number, 1-indexed
       const count = i + 1;
 
@@ -78,8 +75,8 @@
     let maxWidth = 0;
 
     // Iterate over hemistichs, calculating width of each
-    for (let i = 0; i < allHems.length; i++) {
-      const testText = allHems[i].innerText;
+    for (const element of allHems) {
+      const testText = element.innerText;
       const hemWidth = getTextWidth(testText, "x-large Scheherazade");
 
       // If this hemistich's width is a new maximum, update
