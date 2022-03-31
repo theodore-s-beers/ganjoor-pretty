@@ -36,12 +36,23 @@ async fn index(path: web::Path<String>) -> impl Responder {
 
     let parsed = Html::parse_document(&response_text);
 
+    let title_selector = Selector::parse("#page-hierarchy a").unwrap();
     let line_selector = Selector::parse("div.b").unwrap();
 
+    let title_parts: Vec<ElementRef> = parsed.select(&title_selector).collect();
     let lines: Vec<ElementRef> = parsed.select(&line_selector).collect();
 
     if lines.is_empty() {
         return HttpResponse::Ok().body("Something went wrong!");
+    }
+
+    let mut title = String::from("title=");
+
+    for (i, element) in title_parts.iter().enumerate() {
+        title.push_str(element.inner_html().trim());
+        if i < (title_parts.len() - 1) {
+            title.push_str(" » ");
+        }
     }
 
     let mut collected = String::new();
@@ -71,7 +82,7 @@ async fn index(path: web::Path<String>) -> impl Responder {
             "-M",
             "document-css=false",
             "-M",
-            "title=A poem from Ganjoor",
+            &title,
             "-M",
             "lang=ar",
             "-M",
