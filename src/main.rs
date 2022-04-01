@@ -2,9 +2,11 @@
 #![allow(clippy::unused_async, clippy::multiple_crate_versions)]
 
 use std::io::Write;
+use std::path::Path;
 use std::process::Command;
 use std::str;
 
+use actix_files::NamedFile;
 use actix_web::{get, http::StatusCode, web, App, HttpResponse, HttpServer, Responder};
 use anyhow::anyhow;
 use isahc::prelude::*;
@@ -13,10 +15,16 @@ use tempfile::NamedTempFile;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| App::new().service(hello).service(index))
-        .bind(("127.0.0.1", 5779))?
-        .run()
-        .await
+    HttpServer::new(|| {
+        App::new()
+            .service(hello)
+            .service(css)
+            .service(js)
+            .service(catchall)
+    })
+    .bind(("127.0.0.1", 5779))?
+    .run()
+    .await
 }
 
 #[get("/")]
@@ -24,8 +32,20 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
 
+#[get("/styles.css")]
+async fn css() -> actix_web::Result<NamedFile> {
+    let path = Path::new("styles.css");
+    Ok(NamedFile::open(path)?)
+}
+
+#[get("/pretty.js")]
+async fn js() -> actix_web::Result<NamedFile> {
+    let path = Path::new("pretty.js");
+    Ok(NamedFile::open(path)?)
+}
+
 #[get("/{full_path:.+}")]
-async fn index(path: web::Path<String>) -> impl Responder {
+async fn catchall(path: web::Path<String>) -> impl Responder {
     let full_path = path.into_inner();
     let ganjoor_url = format!("https://ganjoor.net/{}", full_path);
 
