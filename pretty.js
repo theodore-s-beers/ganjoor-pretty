@@ -1,4 +1,4 @@
-function fixup() {
+function pretty() {
   //
   // LINE NUMBER & SEPARATOR DIVS
   //
@@ -94,6 +94,4 @@ function fixup() {
   }
 }
 
-window.onload = () => {
-  fixup();
-};
+window.onload = pretty;
