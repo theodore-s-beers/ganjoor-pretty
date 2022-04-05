@@ -18,6 +18,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             .service(hello)
+            .service(robots)
             .service(css)
             .service(js)
             .service(catchall)
@@ -41,6 +42,12 @@ async fn css() -> actix_web::Result<NamedFile> {
 #[get("/pretty.js")]
 async fn js() -> actix_web::Result<NamedFile> {
     let path = Path::new("pretty.js");
+    Ok(NamedFile::open(path)?)
+}
+
+#[get("/robots.txt")]
+async fn robots() -> actix_web::Result<NamedFile> {
+    let path = Path::new("robots.txt");
     Ok(NamedFile::open(path)?)
 }
 
