@@ -3,15 +3,13 @@
 
 use std::io::Write;
 use std::path::Path;
-use std::process::Command;
-use std::str;
 
 use actix_files::NamedFile;
-use actix_web::{get, http::StatusCode, web, App, HttpResponse, HttpServer, Responder};
-use anyhow::anyhow;
-use isahc::prelude::*;
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use scraper::{ElementRef, Html, Selector};
 use tempfile::NamedTempFile;
+
+use ganjoor_pretty::{collect_lines, generate_title, get_ganjoor, pandoc};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -33,6 +31,12 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
 
+#[get("/robots.txt")]
+async fn robots() -> actix_web::Result<NamedFile> {
+    let path = Path::new("robots.txt");
+    Ok(NamedFile::open(path)?)
+}
+
 #[get("/styles.css")]
 async fn css() -> actix_web::Result<NamedFile> {
     let path = Path::new("styles.css");
@@ -45,49 +49,39 @@ async fn js() -> actix_web::Result<NamedFile> {
     Ok(NamedFile::open(path)?)
 }
 
-#[get("/robots.txt")]
-async fn robots() -> actix_web::Result<NamedFile> {
-    let path = Path::new("robots.txt");
-    Ok(NamedFile::open(path)?)
-}
-
 #[get("/{full_path:.+}")]
 async fn catchall(path: web::Path<String>) -> impl Responder {
+    // Construct Ganjoor URL
     let full_path = path.into_inner();
     let ganjoor_url = format!("https://ganjoor.net/{}", full_path);
 
+    // Get Ganjoor HTML
     let response_text = match get_ganjoor(&ganjoor_url) {
         Ok(text) => text,
         Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
     };
 
+    // Parse HTML
     let parsed = Html::parse_document(&response_text);
 
+    // Set up selectors for scraping
     let title_selector = Selector::parse("#page-hierarchy a").unwrap();
     let line_selector = Selector::parse("div.b").unwrap();
 
+    // Scrape title and poem lines
     let title_parts: Vec<ElementRef> = parsed.select(&title_selector).collect();
     let lines: Vec<ElementRef> = parsed.select(&line_selector).collect();
 
+    // If we got no lines, abort
     if lines.is_empty() {
         return HttpResponse::Ok().body("Something went wrong!");
     }
 
-    let mut title = String::from("title=");
+    // Generate title and collect lines
+    let title = generate_title(&title_parts);
+    let collected = collect_lines(&lines);
 
-    for (i, element) in title_parts.iter().enumerate() {
-        title.push_str(element.inner_html().trim());
-        if i < (title_parts.len() - 1) {
-            title.push_str(" » ");
-        }
-    }
-
-    let mut collected = String::new();
-
-    for element in lines {
-        collected.push_str(&element.html());
-    }
-
+    // Write lines to temp file
     let mut tempfile = match NamedTempFile::new() {
         Ok(file) => file,
         Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
@@ -98,49 +92,11 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
         Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
     }
 
-    let pandoc = match Command::new("pandoc")
-        .arg(tempfile.path())
-        .args([
-            "-f",
-            "html",
-            "-t",
-            "html",
-            "-s",
-            "-M",
-            "document-css=false",
-            "-M",
-            &title,
-            "-M",
-            "lang=ar",
-            "-M",
-            "dir=rtl",
-            "-H",
-            "head.html",
-            "-A",
-            "script.html",
-        ])
-        .output()
-    {
+    // Run temp file through Pandoc
+    let output_text = match pandoc(tempfile.path(), &title) {
         Ok(output) => output,
         Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
     };
 
-    let ultima = match str::from_utf8(&pandoc.stdout) {
-        Ok(string) => string.to_owned(),
-        Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
-    };
-
-    HttpResponse::Ok().body(ultima)
-}
-
-fn get_ganjoor(ganjoor_url: &str) -> Result<String, anyhow::Error> {
-    let mut response = isahc::get(ganjoor_url)?;
-
-    let status = response.status();
-    if status == StatusCode::NOT_FOUND {
-        return Err(anyhow!("404"));
-    }
-
-    let response_text = response.text()?;
-    Ok(response_text)
+    HttpResponse::Ok().body(output_text)
 }
