@@ -6,6 +6,8 @@ For example, <https://ganjoor.net/hafez/ghazal/sh250> becomes <https://ganjoor.t
 
 The developers at Ganjoor were gracious enough to add this functionality to the site itself. You can activate it with a button labeled _numā-yi chāpī_. I'm continuing to maintain my service so that I can improve it over time.
 
+_NB: This is the successor to an earlier mini-project, [ghazal-typesetting](https://github.com/theodore-s-beers/ghazal-typesetting), which may still be of interest to some._
+
 ## Technical notes
 
 This is basically a little Rust application, built with [Actix Web](https://actix.rs/). It takes a Ganjoor URL, fetches and parses the relevant contents of the page (using the [isahc](https://github.com/sagebind/isahc) and [scraper](https://github.com/causal-agent/scraper) crates), and constructs a new HTML document with [Pandoc](https://github.com/jgm/pandoc)—which is a required external dependency. Note that we're asking Pandoc to bundle in `head.html` and `script.html`, which in turn reference `styles.css` and `pretty.js`. So those files also need to be present. The application listens on localhost port 5779 (chosen at random) and can be put on a server behind a reverse proxy, with a CDN for caching, etc. Pretty straightforward.
