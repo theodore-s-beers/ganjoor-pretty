@@ -6,10 +6,17 @@ use std::path::Path;
 
 use actix_files::NamedFile;
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use scraper::{ElementRef, Html, Selector};
+use serde::Deserialize;
 use tempfile::NamedTempFile;
 
-use ganjoor_pretty::{collect_lines, generate_title, get_ganjoor, pandoc};
+use ganjoor_pretty::{get_ganjoor, pandoc};
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Poem {
+    full_title: String,
+    html_text: String,
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -52,50 +59,42 @@ async fn js() -> actix_web::Result<NamedFile> {
 #[get("/{full_path:.+}")]
 async fn catchall(path: web::Path<String>) -> impl Responder {
     // Construct Ganjoor URL
-    let full_path = path.into_inner();
-    let ganjoor_url = format!("https://ganjoor.net/{}", full_path);
+    let poem_path = path.into_inner();
 
-    // Get Ganjoor HTML
+    let prefix = "https://api.ganjoor.net/api/ganjoor/poem?url=/";
+    let suffix = "&catInfo=false&catPoems=false&rhymes=false&recitations=false&images=false&songs=false&comments=false&verseDetails=false&navigation=false";
+
+    let ganjoor_url = format!("{}{}{}", prefix, poem_path, suffix);
+
+    // Call Ganjoor API
     let response_text = match get_ganjoor(&ganjoor_url) {
         Ok(text) => text,
-        Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
+        Err(_) => return HttpResponse::BadRequest().body(()),
     };
 
-    // Parse HTML
-    let parsed = Html::parse_document(&response_text);
+    // Deserialize response
+    let poem: Poem = match serde_json::from_str(&response_text) {
+        Ok(obj) => obj,
+        Err(_) => return HttpResponse::BadRequest().body(()),
+    };
 
-    // Set up selectors for scraping
-    let title_selector = Selector::parse("#page-hierarchy a").unwrap();
-    let line_selector = Selector::parse("div.b").unwrap();
-
-    // Scrape title and poem lines
-    let title_parts: Vec<ElementRef> = parsed.select(&title_selector).collect();
-    let lines: Vec<ElementRef> = parsed.select(&line_selector).collect();
-
-    // If we got no lines, abort
-    if lines.is_empty() {
-        return HttpResponse::Ok().body("Something went wrong!");
-    }
-
-    // Generate title and collect lines
-    let title = generate_title(&title_parts);
-    let collected = collect_lines(&lines);
+    let title = format!("title={}", poem.full_title);
+    let text = poem.html_text;
 
     // Write lines to temp file
     let mut tempfile = match NamedTempFile::new() {
         Ok(file) => file,
-        Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
+        Err(_) => return HttpResponse::InternalServerError().body(()),
     };
 
-    match write!(tempfile, "{}", collected) {
-        Ok(_) => (),
-        Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
+    if write!(tempfile, "{}", text).is_err() {
+        return HttpResponse::InternalServerError().body(());
     }
 
     // Run temp file through Pandoc
     let output_text = match pandoc(tempfile.path(), &title) {
         Ok(output) => output,
-        Err(_) => return HttpResponse::Ok().body("Something went wrong!"),
+        Err(_) => return HttpResponse::InternalServerError().body(()),
     };
 
     HttpResponse::Ok().body(output_text)

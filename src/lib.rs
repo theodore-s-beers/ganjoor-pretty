@@ -2,34 +2,13 @@ use std::path::Path;
 use std::process::Command;
 use std::str;
 
-use isahc::prelude::*;
-use scraper::ElementRef;
-
-pub fn collect_lines(lines: &[ElementRef]) -> String {
-    let mut collected = String::new();
-
-    for element in lines {
-        collected.push_str(&element.html());
-    }
-
-    collected
-}
-
-pub fn generate_title(title_parts: &[ElementRef]) -> String {
-    let mut title = String::from("title=");
-
-    for (i, element) in title_parts.iter().enumerate() {
-        title.push_str(element.inner_html().trim());
-        if i < (title_parts.len() - 1) {
-            title.push_str(" » ");
-        }
-    }
-
-    title
-}
+use isahc::{prelude::*, Request};
 
 pub fn get_ganjoor(ganjoor_url: &str) -> Result<String, anyhow::Error> {
-    let mut response = isahc::get(ganjoor_url)?;
+    let mut response = Request::get(ganjoor_url)
+        .header("Accept", "application/json")
+        .body(())?
+        .send()?;
 
     let response_text = response.text()?;
 
