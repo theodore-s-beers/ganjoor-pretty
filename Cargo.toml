@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT"
 description = "Pretty-print a poem from Ganjoor"
 repository = "https://github.com/theodore-s-beers/ganjoor-pretty"
-keywords = ["formatting", "ganjoor", "Persian", "poem"]
+keywords = ["typesetting", "Ganjoor", "Persian", "poem"]
 categories = ["internationalization", "template-engine", "text-processing"]
 
 [dependencies]
