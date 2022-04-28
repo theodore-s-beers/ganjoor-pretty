@@ -76,7 +76,7 @@ function pretty() {
   // Iterate over hemistichs, calculating width of each
   for (const element of allHems) {
     const testText = element.innerText;
-    const hemWidth = getTextWidth(testText, "20px 'Scheherazade New'");
+    const hemWidth = getTextWidth(testText, "18px 'Scheherazade New'");
 
     // If this hemistich's width is a new maximum, update
     if (hemWidth > maxWidth) {
