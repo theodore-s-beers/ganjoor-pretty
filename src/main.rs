@@ -67,7 +67,7 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
     let ganjoor_url = format!("{}{}{}", prefix, poem_path, suffix);
 
     // Call Ganjoor API
-    let response_text = match get_ganjoor(&ganjoor_url) {
+    let response_text = match get_ganjoor(&ganjoor_url).await {
         Ok(text) => text,
         Err(_) => return HttpResponse::BadRequest().body(()),
     };

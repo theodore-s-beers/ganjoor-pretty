@@ -2,15 +2,8 @@ use std::path::Path;
 use std::process::Command;
 use std::str;
 
-use isahc::{prelude::*, Request};
-
-pub fn get_ganjoor(ganjoor_url: &str) -> Result<String, anyhow::Error> {
-    let mut response = Request::get(ganjoor_url)
-        .header("Accept", "application/json")
-        .body(())?
-        .send()?;
-
-    let response_text = response.text()?;
+pub async fn get_ganjoor(ganjoor_url: &str) -> Result<String, anyhow::Error> {
+    let response_text = reqwest::get(ganjoor_url).await?.text().await?;
 
     Ok(response_text)
 }
