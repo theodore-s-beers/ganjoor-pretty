@@ -40,19 +40,19 @@ async fn hello() -> impl Responder {
 
 #[get("/robots.txt")]
 async fn robots() -> actix_web::Result<NamedFile> {
-    let path = Path::new("robots.txt");
+    let path = Path::new("static/robots.txt");
     Ok(NamedFile::open(path)?)
 }
 
 #[get("/styles.css")]
 async fn css() -> actix_web::Result<NamedFile> {
-    let path = Path::new("styles.css");
+    let path = Path::new("static/styles.css");
     Ok(NamedFile::open(path)?)
 }
 
 #[get("/pretty.js")]
 async fn js() -> actix_web::Result<NamedFile> {
-    let path = Path::new("pretty.js");
+    let path = Path::new("static/pretty.js");
     Ok(NamedFile::open(path)?)
 }
 
