@@ -1,5 +1,5 @@
 #![warn(clippy::pedantic, clippy::cargo)]
-#![allow(clippy::unused_async, clippy::multiple_crate_versions)]
+#![allow(clippy::unused_async)]
 
 use std::io::Write;
 use std::path::Path;
@@ -9,7 +9,7 @@ use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use serde::Deserialize;
 use tempfile::NamedTempFile;
 
-use ganjoor_pretty::{get_ganjoor, pandoc};
+use ganjoor_pretty::{construct_url, get_ganjoor, pandoc};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -59,12 +59,7 @@ async fn js() -> actix_web::Result<NamedFile> {
 #[get("/{full_path:.+}")]
 async fn catchall(path: web::Path<String>) -> impl Responder {
     // Construct Ganjoor URL
-    let poem_path = path.into_inner();
-
-    let prefix = "https://api.ganjoor.net/api/ganjoor/poem?url=/";
-    let suffix = "&catInfo=false&catPoems=false&rhymes=false&recitations=false&images=false&songs=false&comments=false&verseDetails=false&navigation=false";
-
-    let ganjoor_url = format!("{}{}{}", prefix, poem_path, suffix);
+    let ganjoor_url = construct_url(path.into_inner());
 
     // Call Ganjoor API
     let response_text = match get_ganjoor(&ganjoor_url).await {
