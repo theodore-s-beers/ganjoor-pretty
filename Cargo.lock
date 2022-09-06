@@ -531,7 +531,7 @@ dependencies = [
 
 [[package]]
 name = "ganjoor-pretty"
-version = "0.4.3"
+version = "0.4.4"
 dependencies = [
  "actix-files",
  "actix-web",
