@@ -1,4 +1,4 @@
-#![warn(clippy::pedantic, clippy::cargo)]
+#![warn(clippy::pedantic, clippy::nursery, clippy::cargo)]
 #![allow(clippy::unused_async)]
 
 use std::io::Write;
