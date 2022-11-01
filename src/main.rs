@@ -82,7 +82,7 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
         Err(_) => return HttpResponse::InternalServerError().body(()),
     };
 
-    if write!(tempfile, "{}", text).is_err() {
+    if write!(tempfile, "{text}").is_err() {
         return HttpResponse::InternalServerError().body(());
     }
 
