@@ -62,9 +62,8 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
     let ganjoor_url = construct_url(path.into_inner());
 
     // Call Ganjoor API
-    let response_text = match get_ganjoor(&ganjoor_url).await {
-        Ok(text) => text,
-        Err(_) => return HttpResponse::BadRequest().body(()),
+    let Ok(response_text) = get_ganjoor(&ganjoor_url).await else {
+        return HttpResponse::BadRequest().body(())
     };
 
     // Deserialize response
@@ -77,9 +76,8 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
     let text = poem.html_text;
 
     // Write lines to temp file
-    let mut tempfile = match NamedTempFile::new() {
-        Ok(file) => file,
-        Err(_) => return HttpResponse::InternalServerError().body(()),
+    let Ok(mut tempfile) = NamedTempFile::new() else {
+        return HttpResponse::InternalServerError().body(())
     };
 
     if write!(tempfile, "{text}").is_err() {
@@ -87,9 +85,8 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
     }
 
     // Run temp file through Pandoc
-    let output_text = match pandoc(tempfile.path(), &title) {
-        Ok(output) => output,
-        Err(_) => return HttpResponse::InternalServerError().body(()),
+    let Ok(output_text) = pandoc(tempfile.path(), &title) else {
+        return HttpResponse::InternalServerError().body(())
     };
 
     HttpResponse::Ok().body(output_text)
