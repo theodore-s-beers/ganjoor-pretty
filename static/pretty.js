@@ -87,7 +87,7 @@ function pretty() {
   // Make sure we got an actual max width before doing anything else
   if (maxWidth !== 0) {
     // Round up maxWidth, and make it into a string with a px value for CSS
-    const pixelWidth = Math.ceil(maxWidth) + "px";
+    const pixelWidth = `${Math.ceil(maxWidth)}px`;
 
     // Finally, update CSS custom property
     document.documentElement.style.setProperty("--hemistich-width", pixelWidth);

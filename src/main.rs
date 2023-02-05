@@ -24,11 +24,12 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(hello)
             .service(robots)
+            .service(icon)
             .service(css)
             .service(js)
             .service(catchall)
     })
-    .bind(("127.0.0.1", 5779))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
@@ -41,6 +42,12 @@ async fn hello() -> impl Responder {
 #[get("/robots.txt")]
 async fn robots() -> actix_web::Result<NamedFile> {
     let path = Path::new("static/robots.txt");
+    Ok(NamedFile::open(path)?)
+}
+
+#[get("/icon.svg")]
+async fn icon() -> actix_web::Result<NamedFile> {
+    let path = Path::new("static/icon.svg");
     Ok(NamedFile::open(path)?)
 }
 

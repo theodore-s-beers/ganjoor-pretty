@@ -34,8 +34,6 @@ pub fn pandoc(path: &Path, title: &str) -> Result<String, anyhow::Error> {
             "dir=rtl",
             "-H",
             "static/head.html",
-            "-A",
-            "static/script.html",
         ])
         .output()?;
 
