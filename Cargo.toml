@@ -11,8 +11,8 @@ categories = ["internationalization", "template-engine", "text-processing"]
 [dependencies]
 actix-files = "0.6.2"
 actix-web = "4.3.1"
-anyhow = "1.0.69"
-reqwest = "0.11.14"
-serde = { version = "1.0.154", features = ["derive"] }
+anyhow = "1.0.70"
+reqwest = "0.11.15"
+serde = { version = "1.0.158", features = ["derive"] }
 serde_json = "1.0.94"
 tempfile = "3.4.0"
