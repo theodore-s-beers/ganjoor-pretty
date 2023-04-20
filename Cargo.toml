@@ -12,7 +12,7 @@ categories = ["internationalization", "template-engine", "text-processing"]
 actix-files = "0.6.2"
 actix-web = "4.3.1"
 anyhow = "1.0.70"
-reqwest = "0.11.15"
-serde = { version = "1.0.158", features = ["derive"] }
-serde_json = "1.0.94"
-tempfile = "3.4.0"
+reqwest = "0.11.16"
+serde = { version = "1.0.160", features = ["derive"] }
+serde_json = "1.0.96"
+tempfile = "3.5.0"
