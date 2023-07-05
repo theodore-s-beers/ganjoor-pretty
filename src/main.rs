@@ -70,7 +70,7 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
 
     // Call Ganjoor API
     let Ok(response_text) = get_ganjoor(&ganjoor_url).await else {
-        return HttpResponse::BadRequest().body(())
+        return HttpResponse::BadRequest().body(());
     };
 
     // Deserialize response
@@ -84,7 +84,7 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
 
     // Write lines to temp file
     let Ok(mut tempfile) = NamedTempFile::new() else {
-        return HttpResponse::InternalServerError().body(())
+        return HttpResponse::InternalServerError().body(());
     };
 
     if write!(tempfile, "{text}").is_err() {
@@ -93,7 +93,7 @@ async fn catchall(path: web::Path<String>) -> impl Responder {
 
     // Run temp file through Pandoc
     let Ok(output_text) = pandoc(tempfile.path(), &title) else {
-        return HttpResponse::InternalServerError().body(())
+        return HttpResponse::InternalServerError().body(());
     };
 
     HttpResponse::Ok().body(output_text)
