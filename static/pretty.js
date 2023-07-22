@@ -10,7 +10,7 @@ function pretty() {
     // Add a div for line number before each first hemistich
     element.insertAdjacentHTML(
       "beforebegin",
-      '<div class="line-number"></div>'
+      '<div class="line-number"></div>',
     );
 
     // Add a div for separator after each first hemistich
