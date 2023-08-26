@@ -28,4 +28,5 @@ COPY --from=builder /usr/src/app/ganjoor-pretty /app/ganjoor-pretty
 # Copy static directory
 COPY static /app/static
 
-# CMD specified in fly.toml
+# Run app
+CMD ./ganjoor-pretty
