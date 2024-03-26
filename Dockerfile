@@ -13,7 +13,7 @@ FROM debian:bookworm-slim
 
 # Install Pandoc
 RUN apt update && apt install -y curl && apt clean
-RUN curl -LO https://github.com/jgm/pandoc/releases/download/3.1.6.2/pandoc-3.1.6.2-1-amd64.deb
+RUN curl -LO https://github.com/jgm/pandoc/releases/download/3.1.12.3/pandoc-3.1.12.3-1-amd64.deb
 RUN dpkg -i pandoc-3.1.6.2-1-amd64.deb
 
 # Run as "app" user
