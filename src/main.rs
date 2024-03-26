@@ -1,5 +1,5 @@
 #![warn(clippy::pedantic, clippy::nursery, clippy::cargo)]
-#![allow(clippy::unused_async)]
+#![allow(clippy::multiple_crate_versions, clippy::unused_async)]
 
 use std::io::Write;
 use std::path::Path;
@@ -66,7 +66,7 @@ async fn js() -> actix_web::Result<NamedFile> {
 #[get("/{full_path:.+}")]
 async fn catchall(path: web::Path<String>) -> impl Responder {
     // Construct Ganjoor URL
-    let ganjoor_url = construct_url(path.into_inner());
+    let ganjoor_url = construct_url(&path.into_inner());
 
     // Call Ganjoor API
     let Ok(response_text) = get_ganjoor(&ganjoor_url).await else {
