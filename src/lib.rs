@@ -5,11 +5,11 @@ use std::path::Path;
 use std::process::Command;
 use std::str;
 
+const API_PREFIX: &str = "https://api.ganjoor.net/api/ganjoor/poem?catInfo=false&catPoems=false&rhymes=false&recitations=false&images=false&songs=false&comments=false&verseDetails=false&navigation=false&url=/";
+
 #[must_use]
 pub fn construct_url(path: &str) -> String {
-    let prefix = "https://api.ganjoor.net/api/ganjoor/poem?url=/";
-    let suffix = "&catInfo=false&catPoems=false&rhymes=false&recitations=false&images=false&songs=false&comments=false&verseDetails=false&navigation=false";
-    format!("{prefix}{path}{suffix}")
+    format!("{API_PREFIX}{path}")
 }
 
 pub async fn get_ganjoor(ganjoor_url: &str) -> Result<String, anyhow::Error> {
