@@ -14,7 +14,7 @@ FROM debian:bookworm-slim
 # Install Pandoc
 RUN apt update && apt install -y curl && apt clean
 RUN curl -LO https://github.com/jgm/pandoc/releases/download/3.6.4/pandoc-3.6.4-1-amd64.deb
-RUN dpkg -i pandoc-3.6.2-1-amd64.deb
+RUN dpkg -i pandoc-3.6.4-1-amd64.deb
 
 # Run as "app" user
 RUN useradd -ms /bin/bash app
