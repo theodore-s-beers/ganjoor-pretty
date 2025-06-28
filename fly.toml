@@ -1,10 +1,7 @@
-# fly.toml app configuration file generated for ganjoor on 2023-06-09T22:43:08+02:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# See https://fly.io/docs/reference/configuration/
 
 app = "ganjoor"
-primary_region = "ams"
+primary_region = "iad"
 
 [http_service]
 internal_port = 8080
