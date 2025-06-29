@@ -1,32 +1,31 @@
-FROM rust:latest AS builder
-
-WORKDIR /usr/src/app
-COPY . .
-
-# Build and cache the binary and dependent crates in release mode
-RUN --mount=type=cache,target=/usr/local/cargo,from=rust:latest,source=/usr/local/cargo \
-    --mount=type=cache,target=target \
-    cargo build --release && mv ./target/release/ganjoor-pretty ./ganjoor-pretty
-
-# Runtime image
-FROM debian:bookworm-slim
-
-# Install Pandoc
-RUN apt update && apt install -y curl && apt clean
-RUN curl -LO https://github.com/jgm/pandoc/releases/download/3.6.4/pandoc-3.6.4-1-amd64.deb
-RUN dpkg -i pandoc-3.6.4-1-amd64.deb
-
-# Run as "app" user
-RUN useradd -ms /bin/bash app
-
-USER app
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
 WORKDIR /app
 
-# Get compiled binaries from builder's cargo install directory
-COPY --from=builder /usr/src/app/ganjoor-pretty /app/ganjoor-pretty
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare
 
-# Copy static directory
-COPY static /app/static
+FROM chef AS builder
+COPY --from=planner /app/recipe.json ./
+RUN cargo chef cook --release
 
-# Run app
-CMD ./ganjoor-pretty
+COPY . .
+RUN cargo build --release
+
+FROM debian:bookworm-slim AS runtime
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y ca-certificates curl && \
+    curl -Lo pandoc.deb \
+    https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-1-amd64.deb && \
+    apt-get install --no-install-recommends -y ./pandoc.deb && \
+    apt-get purge -y curl && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* pandoc.deb
+
+COPY --from=builder /app/target/release/ganjoor-pretty ./
+COPY static ./static
+
+EXPOSE 8080
+ENTRYPOINT ["./ganjoor-pretty"]
