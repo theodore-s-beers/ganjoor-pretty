@@ -1,6 +1,6 @@
 # ganjoor-pretty
 
-Go to the page for any _ghazal_ or _qaṣīdah_ on [Ganjoor](https://ganjoor.net/),
+Go to the page for any _ghazal_ or _qaṣīda_ on [Ganjoor](https://ganjoor.net/),
 and replace `.net` with `.fly.dev` to see a pretty-printed version of the poem.
 
 For example, <https://ganjoor.net/hafez/ghazal/sh407> becomes
@@ -20,9 +20,8 @@ This is basically a little Rust application, built with
 [Actix Web](https://actix.rs/). It takes a Ganjoor URL, fetches the relevant
 poem through their API (using the
 [reqwest](https://github.com/seanmonstar/reqwest) crate), and constructs a new
-HTML document with [Pandoc](https://github.com/jgm/pandoc)—which is a required
-external dependency. Note that we're asking Pandoc to bundle in `head.html`,
-which in turn references `styles.css` and `pretty.js`. So those files also need
-to be present. The application listens on localhost port 8080 and could be put
-on a server behind a reverse proxy, with a CDN for caching, etc. Pretty
-straightforward.
+HTML document with [Pandoc](https://github.com/jgm/pandoc) – which is a required
+external dependency. Note that we're asking Pandoc to bundle `head.html`, which
+in turn references `styles.css` and `pretty.js`. So those files also need to be
+present. The application listens on `localhost:8080` and could be put on a
+server behind a reverse proxy, with a CDN for caching, etc.
