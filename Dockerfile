@@ -16,11 +16,12 @@ FROM debian:trixie-slim AS runtime
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y ca-certificates curl && \
+    apt-get install --no-install-recommends -y ca-certificates curl jq && \
+    PANDOC_VERSION=$(curl -s https://api.github.com/repos/jgm/pandoc/releases/latest | jq -r '.tag_name') && \
     curl -Lo pandoc.deb \
-    https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-1-amd64.deb && \
+    https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb && \
     apt-get install --no-install-recommends -y ./pandoc.deb && \
-    apt-get purge -y curl && \
+    apt-get purge -y curl jq && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* pandoc.deb
 
