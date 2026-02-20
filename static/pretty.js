@@ -8,10 +8,7 @@ function pretty() {
 
   for (const element of firstHems) {
     // Add a div for line number before each first hemistich
-    element.insertAdjacentHTML(
-      "beforebegin",
-      '<div class="line-number"></div>',
-    );
+    element.insertAdjacentHTML("beforebegin", '<div class="line-number"></div>');
 
     // Add a div for separator after each first hemistich
     element.insertAdjacentHTML("afterend", '<div class="separator"></div>');
@@ -58,9 +55,7 @@ function pretty() {
   // calculate the width of some text. We provide a string of text and the
   // desired font properties.
   function getTextWidth(text, font) {
-    const canvas =
-      getTextWidth.canvas ||
-      (getTextWidth.canvas = document.createElement("canvas"));
+    const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
     const context = canvas.getContext("2d");
     context.font = font;
     const metrics = context.measureText(text);
